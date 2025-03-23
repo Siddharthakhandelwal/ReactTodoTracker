@@ -1,4 +1,3 @@
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type WelcomeSectionProps = {
@@ -14,7 +13,14 @@ export function WelcomeSection({ username, progress, avatar }: WelcomeSectionPro
     <div className="flex flex-col gap-4 p-6 bg-card rounded-lg">
       <div className="flex items-center gap-4">
         <Avatar className="h-16 w-16">
-          <AvatarImage src={avatar || "/default-avatar.png"} alt={username} />
+          <AvatarImage 
+            src={avatar || "/default-avatar.png"} 
+            alt={username} 
+            className="object-cover"
+            onError={(e) => {
+              e.currentTarget.src = "/default-avatar.png";
+            }}
+          />
           <AvatarFallback>
             {username?.charAt(0)?.toUpperCase() || 'U'}
           </AvatarFallback>

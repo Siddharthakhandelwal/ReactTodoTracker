@@ -152,7 +152,7 @@ export const storage = {
       db.run(
         'UPDATE goals SET completed = ? WHERE id = ?',
         [updates.completed ? 1 : 0, id],
-        async (err) => {
+        function(err) {
           if (err) reject(err);
           try {
             const row = await new Promise((resolve, reject) => {

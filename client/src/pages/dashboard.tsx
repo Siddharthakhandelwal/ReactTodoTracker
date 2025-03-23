@@ -25,9 +25,10 @@ export default function Dashboard() {
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
 
-  // Get userId and check if just logged in
+  // Get user info from localStorage
   const userId = localStorage.getItem('userId') || '1';
   const username = localStorage.getItem('username');
+  const avatar = localStorage.getItem('avatar');
   
   useEffect(() => {
     const justLoggedIn = sessionStorage.getItem('justLoggedIn');
