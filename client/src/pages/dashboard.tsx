@@ -19,13 +19,28 @@ import CareerCoach from "@/components/dashboard/career-coach";
 
 export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isCareerCoachOpen, setIsCareerCoachOpen] = useState(false); // Added state for Career Coach modal
+  const [isCareerCoachOpen, setIsCareerCoachOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
 
-  // Get userId from localStorage
-  const userId = localStorage.getItem('userId') || '1'; // Default to 1 if not found
+  // Get userId and check if just logged in
+  const userId = localStorage.getItem('userId') || '1';
+  const username = localStorage.getItem('username');
+  
+  useEffect(() => {
+    const justLoggedIn = sessionStorage.getItem('justLoggedIn');
+    if (justLoggedIn && username) {
+      setShowWelcome(true);
+      toast({
+        title: `Welcome ${username}!`,
+        description: "Great to have you here. Let's achieve your career goals together.",
+        duration: 5000,
+      });
+      sessionStorage.removeItem('justLoggedIn');
+    }
+  }, [username]);
 
   // Fetch dashboard data from API
   const { data: dashboardData, isLoading, error } = useQuery({

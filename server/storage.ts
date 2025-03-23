@@ -152,17 +152,39 @@ export const storage = {
       db.run(
         'UPDATE goals SET completed = ? WHERE id = ?',
         [updates.completed ? 1 : 0, id],
-        (err) => {
+        async (err) => {
           if (err) reject(err);
-          db.get('SELECT * FROM goals WHERE id = ?', [id], (err, row) => {
-            if (err) reject(err);
+          try {
+            const row = await new Promise((resolve, reject) => {
+              db.get('SELECT * FROM goals WHERE id = ?', [id], (err, row) => {
+                if (err) reject(err);
+                resolve(row);
+              });
+            });
+            
             if (!row) resolve(null);
+            
+            // Calculate new progress
+            const goals = await this.getGoals(row.user_id);
+            const completedGoals = goals.filter(g => g.completed).length;
+            const progress = goals.length > 0 ? Math.round((completedGoals / goals.length) * 100) : 0;
+            
+            // Update user progress
+            await new Promise((resolve, reject) => {
+              db.run('UPDATE users SET progress = ? WHERE id = ?', [progress, row.user_id], (err) => {
+                if (err) reject(err);
+                resolve(null);
+              });
+            });
+
             resolve({
               ...row,
               id: row.id.toString(),
               completed: Boolean(row.completed)
             });
-          });
+          } catch (error) {
+            reject(error);
+          }
         }
       );
     });
