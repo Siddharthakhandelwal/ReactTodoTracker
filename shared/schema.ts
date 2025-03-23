@@ -1,20 +1,13 @@
-import { pgTable, text, serial, integer, boolean, jsonb } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+// User schema
+export const userSchema = z.object({
+  id: z.number(),
+  username: z.string(),
+  password: z.string()
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-});
-
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
+export type User = z.infer<typeof userSchema>;
 
 // Survey schema
 export const surveySchema = z.object({
@@ -33,10 +26,10 @@ export type Survey = z.infer<typeof surveySchema>;
 
 // Learning Goal schema
 export const goalSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: z.string(),
   task: z.string().min(2),
   completed: z.boolean().default(false),
-  userId: z.number().int().positive(),
+  userId: z.number()
 });
 
 export type Goal = z.infer<typeof goalSchema>;
@@ -49,23 +42,17 @@ export type CreateGoal = z.infer<typeof createGoalSchema>;
 export const updateGoalSchema = goalSchema.pick({ completed: true });
 export type UpdateGoal = z.infer<typeof updateGoalSchema>;
 
-// User profile combining user account and survey data
-export const userProfiles = pgTable("user_profiles", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  subjects: text("subjects").array().notNull(),
-  interests: text("interests").notNull(),
-  skills: text("skills").notNull(), 
-  goal: text("goal").notNull(),
-  thinking_style: text("thinking_style").notNull(),
-  extra_info: text("extra_info"),
-  created_at: text("created_at").notNull().default("NOW()"),
+// User profile schema
+export const userProfileSchema = z.object({
+  id: z.number(),
+  userId: z.number(),
+  subjects: z.string(), // Stored as JSON string
+  interests: z.string(),
+  skills: z.string(),
+  goal: z.string(),
+  thinking_style: z.string(),
+  extra_info: z.string().optional(),
+  created_at: z.string()
 });
 
-export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({
-  id: true,
-  created_at: true,
-});
-
-export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
-export type UserProfile = typeof userProfiles.$inferSelect;
+export type UserProfile = z.infer<typeof userProfileSchema>;
